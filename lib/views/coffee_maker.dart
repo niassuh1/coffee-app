@@ -61,7 +61,7 @@ class _CoffeeMakerScreenState extends State<CoffeeMakerScreen> {
                 controller: _countdownController,
                 width: 200,
                 height: 200,
-                duration: 5,
+                duration: 45,
                 onStart: () {
                   setState(() {
                     period++;
