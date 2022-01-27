@@ -12,6 +12,7 @@ class CustomSliverAppbar extends StatelessWidget {
       backgroundColor: Colors.white,
       shadowColor: Colors.black26,
       leading: IconButton(
+        splashRadius: 20,
         onPressed: () {},
         icon: SvgPicture.asset(
           'assets/images/menu-bar.svg',
@@ -43,9 +44,10 @@ class CustomSliverAppbar extends StatelessWidget {
       ),
       actions: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
+          padding: const EdgeInsets.symmetric(horizontal: 12),
           child: CircleAvatar(
-            backgroundColor: Theme.of(context).primaryColor,
+            radius: 16,
+            backgroundColor: Colors.blueGrey[200],
           ),
         )
       ],

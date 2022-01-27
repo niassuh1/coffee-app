@@ -52,10 +52,24 @@ class _HomeScreenState extends State<HomeScreen> {
                       color: Theme.of(context).primaryColor,
                     ),
                   ),
-                  const SizedBox(
-                    height: 24,
+                  SizedBox(
+                    height: defaultPadding * 2,
                   ),
                   const CustomTextfield(hintText: 'Search Here'),
+                  SizedBox(height: defaultPadding),
+                  HeadlineText(
+                    title: "Don't have beans?\n",
+                    titleStyle: TextStyle(
+                        fontSize: 18,
+                        color: Colors.black87,
+                        fontWeight: FontWeight.w600),
+                    subtitle: "Try these",
+                    subtitleStyle: TextStyle(
+                      color: Theme.of(context).primaryColor,
+                      fontWeight: FontWeight.w400,
+                      fontSize: 15,
+                    ),
+                  ),
                   const SizedBox(
                     height: 700,
                   ),

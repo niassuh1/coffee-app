@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:capulus/constants.dart';
 import 'package:capulus/models/coffee.dart';
 import 'package:capulus/widgets/splashy-button.dart';
 import 'package:circular_countdown_timer/circular_countdown_timer.dart';
@@ -14,9 +15,10 @@ class CoffeeMakerScreen extends StatefulWidget {
 
 class _CoffeeMakerScreenState extends State<CoffeeMakerScreen> {
   late CountDownController _countdownController = new CountDownController();
-  double initialWeight = 30;
   late Coffee _coffee = Coffee(weight: initialWeight);
+  double initialWeight = 30;
   bool timerIsActive = false;
+  bool timerIsPaused = true;
   int period = 0;
 
   @override
@@ -28,61 +30,89 @@ class _CoffeeMakerScreenState extends State<CoffeeMakerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: Theme.of(context).primaryColor,
+        onPressed: () {
+          Navigator.pop(context);
+        },
+        child: Icon(Icons.chevron_left),
+      ),
       body: SafeArea(
         child: Center(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: TextFormField(
-                  onChanged: handleTextChange,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(
-                    border: InputBorder.none,
-                    label: Text("Enter Coffee's Weight"),
-                    floatingLabelStyle: TextStyle(
-                      color: Theme.of(context).primaryColor,
-                      fontWeight: FontWeight.w600,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: defaultPadding),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: defaultPadding),
+                  decoration: BoxDecoration(
+                      color: Colors.blueGrey[50],
+                      borderRadius: BorderRadius.circular(5)),
+                  child: TextFormField(
+                    onChanged: handleTextChange,
+                    keyboardType: TextInputType.number,
+                    cursorColor: Theme.of(context).primaryColor,
+                    decoration: InputDecoration(
+                      icon: Icon(
+                        Icons.coffee,
+                        color: Colors.blueGrey[300],
+                      ),
+                      suffix: Text(
+                        'g',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      border: InputBorder.none,
+                      label: Text("Enter Coffee's Weight"),
+                      floatingLabelStyle: TextStyle(
+                        color: Theme.of(context).primaryColor,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
+                    initialValue: initialWeight.toString(),
+                    onFieldSubmitted: handleTextChange,
                   ),
-                  initialValue: initialWeight.toString(),
-                  onFieldSubmitted: handleTextChange,
                 ),
-              ),
-              const SizedBox(height: 25),
-              Text(timerIsActive
-                  ? 'Pour ${_coffee.getFullPours()[period].toStringAsFixed(1)} ml'
-                  : _coffee.getFullPours()[period].toStringAsFixed(1)),
-              const SizedBox(height: 15),
-              CircularCountDownTimer(
-                autoStart: false,
-                controller: _countdownController,
-                width: 200,
-                height: 200,
-                duration: 45,
-                onStart: () {
-                  setState(() {
-                    period++;
-                  });
-                },
-                onComplete: onCompleteHandle,
-                fillColor: Theme.of(context).primaryColor,
-                ringColor: Theme.of(context).primaryColor.withAlpha(100),
-              ),
-              const SizedBox(
-                height: 25,
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                child: Row(
+                const SizedBox(height: 25),
+                Text(timerIsActive
+                    ? 'Pour ${_coffee.getFullPours()[period].toStringAsFixed(1)} ml'
+                    : _coffee.getFullPours()[0].toStringAsFixed(1)),
+                const SizedBox(height: 15),
+                CircularCountDownTimer(
+                  autoStart: false,
+                  strokeCap: StrokeCap.round,
+                  controller: _countdownController,
+                  width: 150,
+                  height: 150,
+                  duration: 45,
+                  onStart: () {
+                    setState(() {
+                      period++;
+                    });
+                  },
+                  onComplete: onCompleteHandle,
+                  fillColor: Theme.of(context).primaryColor,
+                  ringColor: Theme.of(context).primaryColor.withAlpha(100),
+                ),
+                const SizedBox(
+                  height: 25,
+                ),
+                Row(
                   children: [
                     Expanded(
                       child: SplashyButton(
                         onTap: timerStartHandler,
+                        color: timerIsActive
+                            ? Colors.black87
+                            : Theme.of(context).primaryColor,
                         child: Text(
-                          'Start'.toUpperCase(),
+                          timerIsActive
+                              ? 'Restart'.toUpperCase()
+                              : 'Start'.toUpperCase(),
                           style: const TextStyle(
                             letterSpacing: 1.25,
                             color: Colors.white,
@@ -95,12 +125,12 @@ class _CoffeeMakerScreenState extends State<CoffeeMakerScreen> {
                     SizedBox(width: 5),
                     Expanded(
                       child: SplashyButton(
-                        onTap: () {
-                          _countdownController.pause();
-                        },
+                        onTap: timerResumePauseHandler,
                         color: Colors.blueGrey[400]!,
                         child: Text(
-                          'Pause'.toUpperCase(),
+                          timerIsPaused & timerIsActive
+                              ? 'Resume'.toUpperCase()
+                              : 'Pause'.toUpperCase(),
                           style: const TextStyle(
                             letterSpacing: 1.25,
                             color: Colors.white,
@@ -113,50 +143,10 @@ class _CoffeeMakerScreenState extends State<CoffeeMakerScreen> {
                     SizedBox(
                       width: 5,
                     ),
-                    Expanded(
-                      child: SplashyButton(
-                        onTap: () {
-                          _countdownController.resume();
-                        },
-                        color: Colors.blueGrey[400]!,
-                        child: Text(
-                          'Resume'.toUpperCase(),
-                          style: const TextStyle(
-                            letterSpacing: 1.25,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 10,
-                          ),
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 5),
-                    Expanded(
-                      child: SplashyButton(
-                        onTap: () {
-                          if (timerIsActive) {
-                            _countdownController.restart();
-                            setState(() {
-                              period = 1;
-                            });
-                          }
-                        },
-                        color: Colors.blueGrey[400]!,
-                        child: Text(
-                          'Restart'.toUpperCase(),
-                          style: const TextStyle(
-                            letterSpacing: 1.25,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 10,
-                          ),
-                        ),
-                      ),
-                    ),
                   ],
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -177,10 +167,34 @@ class _CoffeeMakerScreenState extends State<CoffeeMakerScreen> {
   timerStartHandler() {
     if (!timerIsActive) {
       setState(() {
-        period = 0;
         timerIsActive = true;
+        timerIsPaused = false;
+
+        period = 0;
       });
       _countdownController.start();
+    } else {
+      setState(() {
+        timerIsActive = false;
+        timerIsPaused = false;
+        period = 0;
+      });
+      _countdownController.restart();
+      _countdownController.pause();
+    }
+  }
+
+  timerResumePauseHandler() {
+    if (timerIsPaused & timerIsActive) {
+      _countdownController.resume();
+      setState(() {
+        timerIsPaused = false;
+      });
+    } else {
+      _countdownController.pause();
+      setState(() {
+        timerIsPaused = true;
+      });
     }
   }
 
