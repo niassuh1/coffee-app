@@ -13,7 +13,7 @@ class Coffee {
   List<double> getFullPours() {
     return [
       0,
-      getSinglePour() * 2 * .35,
+      getSinglePour() * .55,
       getSinglePour() * 2,
       getSinglePour() * 3,
       getSinglePour() * 4,
